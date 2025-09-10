@@ -21,12 +21,12 @@ library(ggplot2)
 metap <- function(time, state, parameters) {
   with(as.list(c(state, parameters)), {
   
-  dSa = -betta*Sa*Ia + Sa*(un - um) + M*(Sb - Sa)
+  dSa = -betta*Sa*Ia + un*(Sa+Ea+Ia+Ra) - Sa*um + M*(Sb - Sa)
   dEa = betta*Sa*Ia - Ea*(um + sigma) + M*(Eb - Ea)
   dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
   dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
      
-  dSb = -betta*Sb*Ib + Sb*(un - um) + M*(Sa - Sb)
+  dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
   dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
   dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
   dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
@@ -62,7 +62,23 @@ state <- c(
   
 )
 
+# Experimentando com outro estado inicial
+#state <- c(
+#  Sa=0.1-0.01,
+#  Ea=0,
+#  Ia=0.01,
+#  Ra=0.9,
+  
+#  Sb=0.1-0.01,
+#  Eb=0,
+#  Ib=0.01,
+#  Rb=0.9
+  
+#)
+
 time <- seq(0, 100, by=1)
+time <- seq(0, 1000, by=1)
+time <- seq(0, 250, by=1)
 
 #--- solve the EDO ---
 
@@ -72,6 +88,13 @@ head(output)
 #---plot A---
 
 out_df <- as.data.frame(output)
+out_df$sum_a = out_df$Sa + out_df$Ea + out_df$Ia + out_df$Ra
+out_df$sum_b = out_df$Sb + out_df$Eb + out_df$Ib + out_df$Rb
+
+ggplot(out_df, aes(x=time)) +
+  geom_line(size = 0.7, aes(y = sum_a, color = "Sum A")) +
+  geom_line(size = 0.7, aes(y = sum_b, color = "Sum B")) 
+  
 
 ggplot(out_df, aes(x = time)) +
   geom_line(size = 0.7, aes(y = Sa, color = "Susceptible A")) +
@@ -94,3 +117,7 @@ ggplot(out_df, aes(x = time)) +
   scale_color_manual(values = c("Susceptible B" = "blue", "Exposed B" = "orange", "Infected B" = "red", "Recovered B" = "green")) +
   theme_minimal() +
   theme(legend.title = element_blank())
+
+
+### Introduzir Vacina leaky
+
