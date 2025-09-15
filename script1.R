@@ -10,6 +10,7 @@ library(ggplot2)
 #' @param um mortality rate
 #' @param M migration rate
 #' @param sigma transition rate from exposed to infected
+#' @param alpha vaccination rate
 #' 
 #' @export
 
@@ -63,21 +64,21 @@ state <- c(
 )
 
 # Experimentando com outro estado inicial
-#state <- c(
-#  Sa=0.1-0.01,
-#  Ea=0,
-#  Ia=0.01,
-#  Ra=0.9,
+state <- c(
+  Sa=0.1-0.01,
+  Ea=0,
+  Ia=0.01,
+  Ra=0.9,
   
-#  Sb=0.1-0.01,
-#  Eb=0,
-#  Ib=0.01,
-#  Rb=0.9
+  Sb=0.1-0.01,
+  Eb=0,
+  Ib=0.01,
+  Rb=0.9
   
-#)
+)
 
 time <- seq(0, 100, by=1)
-time <- seq(0, 1000, by=1)
+#time <- seq(0, 1000, by=1)
 time <- seq(0, 250, by=1)
 
 #--- solve the EDO ---
@@ -121,3 +122,26 @@ ggplot(out_df, aes(x = time)) +
 
 ### Introduzir Vacina leaky
 
+metap_leaky <- function(time, state, parameters) {
+  with(as.list(c(state, parameters)), {
+    
+    dSa = -betta*Sa*Ia + un*(Sa+Ea+Ia+Ra) - Sa*um + M*(Sb - Sa) - Sa*alpha
+    dEa = betta*Sa*Ia - Ea*(um + sigma) + M*(Eb - Ea)
+    dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
+    dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
+    
+    dVa = Sa*alpha - bettav*Va*Ia - um*Va + M*(Vb - Va)
+    dEav = 
+    dIav =
+    dRav = 
+    
+    dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
+    dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
+    dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
+    dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
+    
+    return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb)))
+    
+    
+  })
+}
