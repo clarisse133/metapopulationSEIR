@@ -27,7 +27,7 @@ metap <- function(time, state, parameters) {
   dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
   dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
      
-  dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
+  dSb = -betta*Sb*Ib + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
   dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
   dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
   dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
@@ -125,23 +125,51 @@ ggplot(out_df, aes(x = time)) +
 metap_leaky <- function(time, state, parameters) {
   with(as.list(c(state, parameters)), {
     
-    dSa = -betta*Sa*Ia + un*(Sa+Ea+Ia+Ra) - Sa*um + M*(Sb - Sa) - Sa*alpha
-    dEa = betta*Sa*Ia - Ea*(um + sigma) + M*(Eb - Ea)
+    dSa = - betta*Sa*Ia - betta_vn * Sa*Iav + un*(Sa+Ea+Ia+Ra+ Va+Eav+Iam+Rav) - Sa*um + M*(Sb - Sa) - Sa*alpha_a
+    dEa = betta*Sa*Ia + betta_vn * Sa*Iav - Ea*(um + sigma) + M*(Eb - Ea)
     dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
     dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
     
-    dVa = Sa*alpha - bettav*Va*Ia - um*Va + M*(Vb - Va)
-    dEav = 
-    dIav =
-    dRav = 
-    
-    dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
-    dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
+    dVa = Sa*alpha_a - betta_v * Va*Ia - betta_vi * Va* Iav - um*Va + M*(Vb - Va)
+    dEav =  betta_v * Va*Ia + betta_vi * Va* Iav - Eav *(um+sigma_v) + M*(Ebv - Eav) 
+    dIav =  sigma_v * Eav - Iav *(um+ gamma_v) + M*(Ibv - Iav)
+    dRav =  gamma_v * Iav - Rav*um + M*(Rbv - Rav)
+
+    dSb = - betta*Sb*Ib - betta_vn * Sb*Ibv + un*(Sb+Eb+Ib+Rb+ Vb+Ebv+Ibm+Rbv) - Sb*um + M*(Sa - Sb) - Sb*alpha_b
+    dEb = betta*Sb*Ib + betta_vn * Sb*Ibv - Eb*(um + sigma) + M*(Ea - Eb)
     dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
     dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
+    
+    dVb = Sb*alpha_b - betta_v * Vb*Ib - betta_vi * Vb* Ibv - um*Vb + M*(Va - Vb)
+    dEbv =  betta_v * Vb*Ib + betta_vi * Vb* Ibv - Ebv *(um+sigma_v) + M*(Eav - Ebv) 
+    dIbv =  sigma_v * Ebv - Ibv *(um+ gamma_v) + M*(Iav - Ibv)
+    dRbv =  gamma_v * Ibv - Rbv*um + M*(Rav - Rbv)
+    
+#    dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
+#    dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
+#    dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
+#    dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
     
     return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb)))
     
     
   })
 }
+
+# 1 - comecar com os valores de beta iguais aos valores utilizados anteriormente
+# 1 - betta = betta_v = betta_vi = betta_vn
+# gamma_v = gamma
+# alpha_a = alpha_b
+
+# 2 - betta_vi e betta_vn menores que betta_v
+# Fazer grávicos. O que acontece, o que vc observa?
+
+# 3 - A partir do 1, alterar o valor de gamma_v para gamma_v > gamma
+# Fazer graficos. O que vc observa?
+
+# 4 - A partir do 1, experimentar alpha_a < alpha_b
+# Fazer gráficos
+
+# Em aberto: Podemos pensar ema avaliação de 
+# vacinas com bloqueio de infecção, bloqueio de transmissao e redução de morbi-mortalidade - pensar mais a frente
+
