@@ -161,14 +161,14 @@ parameters_leaky <- c(
   #---vaccinated---
  alpha_a=0.75,
  alpha_b=0.75,
- betta_v=0.6,
- betta_vi=0.3,
+ betta_v=3.0,
+ betta_vi=2.5,
  sigma_v=0.4,
  gamma_v=0.2,
  
  #---unvaccinated---
- betta=0.6,
- betta_vn=0.3,
+ betta=3.0,
+ betta_vn=2.5,
  sigma=0.4,
  gamma=0.2,
  M=0.1,
@@ -199,7 +199,7 @@ state_leaky <- c(
   Rbv=0
 )
 
-time_leaky <- seq(0, 50, by=1)
+time_leaky <- seq(0, 500, by=1)
 
 #---solve the edo---
 output_leaky <- ode(y = state_leaky, times = time_leaky, func = metap_leaky, parms = parameters_leaky)
@@ -226,6 +226,12 @@ ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+
+library(tidyverse)
+outdf_leaky %>%
+  mutate(Na = Sa+Ea+Ia+Ra+Va+Eav+Iav+Rav) %>%
+  mutate(Nb = Sb+Eb+Ib+Rb+Vb+Ebv+Ibv+Rbv) -> df2
+  
 
 #---plot B---
 outdf_leaky <- as.data.frame(output_leaky)
@@ -259,4 +265,130 @@ ggplot(outdf_leaky, aes(x = time)) +
 
 # Em aberto: Podemos pensar ema avaliação de 
 # vacinas com bloqueio de infecção, bloqueio de transmissao e redução de morbi-mortalidade - pensar mais a frente
+
+
+
+# Paa introduzir desigualdade, pode ser com alphas distintos ou condicoes iniciais distintas
+
+# alphas distintos
+
+parameters_leaky <- c(
+  
+  #---vaccinated---
+  alpha_a=0.75,
+  alpha_b=0.05,
+  betta_v=3.0,
+  betta_vi=2.5,
+  sigma_v=0.4,
+  gamma_v=0.2,
+  
+  #---unvaccinated---
+  betta=3.0,
+  betta_vn=2.5,
+  sigma=0.4,
+  gamma=0.2,
+  M=0.1,
+  un=0.02,
+  um=0.02
+  
+)
+
+state_leaky <- c(
+  Sa=0.8,
+  Ea=0,
+  Ia=0.2,
+  Ra=0,
+  
+  Sb=0.8,
+  Eb=0,
+  Ib=0.2,
+  Rb=0,
+  
+  Va=0,
+  Eav=0,
+  Iav=0,
+  Rav=0,
+  
+  Vb=0,
+  Ebv=0,
+  Ibv=0,
+  Rbv=0
+)
+
+time_leaky <- seq(0, 100, by=1)
+
+#---solve the edo---
+output_leaky <- ode(y = state_leaky, times = time_leaky, func = metap_leaky, parms = parameters_leaky)
+head(output_leaky)
+
+#---plot A---
+outdf_leaky <- as.data.frame(output_leaky)
+ggplot(outdf_leaky, aes(x = time)) +
+  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
+  geom_line(size = 0.7, aes(y = Ea, color = "dEa")) +
+  geom_line(size = 0.7, aes(y = Ia, color = "dIa")) +
+  geom_line(size = 0.7, aes(y = Ra, color = "dRa")) +
+  labs(x = "Time(days)", y = "Proportion of population", title = "SEIR Dynamics for the population A novaccinated") +
+  scale_color_manual(values = c("dSa"="blue", "dEa"="orange", "dIa"= "red","dRa"="green" )) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+ggplot(outdf_leaky, aes(x = time)) +
+  geom_point(size = 0.6, aes(y = Va, color = "dVa")) +
+  geom_point(size = 0.6, aes(y = Eav, color = "dEav")) +
+  geom_point(size = 0.6, aes(y = Iav, color = "dIav")) +
+  geom_point(size = 0.6, aes(y = Rav, color = "dRav")) +
+  labs(x = "Time(days)", y = "Proportion of population", title = "SEIR Dynamics for the population A vaccinated") +
+  scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+library(tidyverse)
+outdf_leaky %>%
+  mutate(Na = Sa+Ea+Ia+Ra+Va+Eav+Iav+Rav) %>%
+  mutate(Nb = Sb+Eb+Ib+Rb+Vb+Ebv+Ibv+Rbv) -> df2
+
+
+#---plot B---
+outdf_leaky <- as.data.frame(output_leaky)
+ggplot(outdf_leaky, aes(x = time)) +
+  geom_line(size = 0.7, aes(y = Sb, color = "dSb")) +
+  geom_line(size = 0.7, aes(y = Eb, color = "dEb")) +
+  geom_line(size = 0.7, aes(y = Ib, color = "dIb")) +
+  geom_line(size = 0.7, aes(y = Rb, color = "dRb")) +
+  geom_point(size = 0.6, aes(y = Vb, color = "dVb")) +
+  geom_point(size = 0.6, aes(y = Ebv, color = "dEbv")) +
+  geom_point(size = 0.6, aes(y = Ibv, color = "dIbv")) +
+  geom_point(size = 0.6, aes(y = Rbv, color = "dRbv")) +
+  labs(x = "Time(days)", y = "Proportion of population", title = "SEIR Dynamics for the population B") +
+  scale_color_manual(values = c("dSb"="blue", "dEb"="orange", "dIb"= "red","dRb"="green", "dVb"="blue","dEbv"="orange", "dIbv"="red", "dRbv"="green" )) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+
+# probabilidade de mutacao
+
+prob_mut = .0001
+
+# I = 1000
+
+# Numero esperado de infectados com nova mutacao: I*prob_mut
+
+I = 1000
+
+N=I*prob_mut
+N
+
+I = 1000000
+
+N=I*prob_mut
+N
+
+
+# 1
+# considerar tamanhos de populcao distintos: N=10000, N=1 000 000, N=1 000 000 (ou outros valores)
+# encontrar o que se espera em termos de individuos com as novas mutacoes
+
+# 2
+# variar a prob_mut e construir grafico do numero esperado em funcao da prob de mutacao
 
