@@ -122,10 +122,10 @@ ggplot(out_df, aes(x = time)) +
 
 ### Introduzir Vacina leaky
 
-metap_leaky <- function(time, state, parameters) {
-  with(as.list(c(state, parameters)), {
+metap_leaky <- function(time_leaky, state_leaky, parameters_leaky) {
+  with(as.list(c(state_leaky, parameters_leaky)), {
     
-    dSa = - betta*Sa*Ia - betta_vn * Sa*Iav + un*(Sa+Ea+Ia+Ra+ Va+Eav+Iam+Rav) - Sa*um + M*(Sb - Sa) - Sa*alpha_a
+    dSa = - betta*Sa*Ia - betta_vn * Sa*Iav + un*(Sa+Ea+Ia+Ra+ Va+Eav+Iav+Rav) - Sa*um + M*(Sb - Sa) - Sa*alpha_a
     dEa = betta*Sa*Ia + betta_vn * Sa*Iav - Ea*(um + sigma) + M*(Eb - Ea)
     dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
     dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
@@ -135,7 +135,7 @@ metap_leaky <- function(time, state, parameters) {
     dIav =  sigma_v * Eav - Iav *(um+ gamma_v) + M*(Ibv - Iav)
     dRav =  gamma_v * Iav - Rav*um + M*(Rbv - Rav)
 
-    dSb = - betta*Sb*Ib - betta_vn * Sb*Ibv + un*(Sb+Eb+Ib+Rb+ Vb+Ebv+Ibm+Rbv) - Sb*um + M*(Sa - Sb) - Sb*alpha_b
+    dSb = - betta*Sb*Ib - betta_vn * Sb*Ibv + un*(Sb+Eb+Ib+Rb+Vb+Ebv+Ibv+Rbv) - Sb*um + M*(Sa - Sb) - Sb*alpha_b
     dEb = betta*Sb*Ib + betta_vn * Sb*Ibv - Eb*(um + sigma) + M*(Ea - Eb)
     dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
     dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
@@ -150,11 +150,98 @@ metap_leaky <- function(time, state, parameters) {
 #    dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
 #    dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
     
-    return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb)))
+    return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb, dVa, dEav, dIav, dRav, dVb, dEbv, dIbv, dRbv)))
     
     
   })
 }
+
+parameters_leaky <- c(
+  
+  #---vaccinated---
+ alpha_a=0.75,
+ alpha_b=0.75,
+ betta_v=0.6,
+ betta_vi=0.3,
+ sigma_v=0.4,
+ gamma_v=0.2,
+ 
+ #---unvaccinated---
+ betta=0.6,
+ betta_vn=0.3,
+ sigma=0.4,
+ gamma=0.2,
+ M=0.1,
+ un=0.02,
+ um=0.02
+  
+)
+
+state_leaky <- c(
+  Sa=0.8,
+  Ea=0,
+  Ia=0.2,
+  Ra=0,
+  
+  Sb=0.8,
+  Eb=0,
+  Ib=0.2,
+  Rb=0,
+  
+  Va=0,
+  Eav=0,
+  Iav=0,
+  Rav=0,
+  
+  Vb=0,
+  Ebv=0,
+  Ibv=0,
+  Rbv=0
+)
+
+time_leaky <- seq(0, 50, by=1)
+
+#---solve the edo---
+output_leaky <- ode(y = state_leaky, times = time_leaky, func = metap_leaky, parms = parameters_leaky)
+head(output_leaky)
+
+#---plot A---
+outdf_leaky <- as.data.frame(output_leaky)
+ggplot(outdf_leaky, aes(x = time)) +
+  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
+  geom_line(size = 0.7, aes(y = Ea, color = "dEa")) +
+  geom_line(size = 0.7, aes(y = Ia, color = "dIa")) +
+  geom_line(size = 0.7, aes(y = Ra, color = "dRa")) +
+  labs(x = "Time(days)", y = "Proportion of population", title = "SEIR Dynamics for the population A novaccinated") +
+  scale_color_manual(values = c("dSa"="blue", "dEa"="orange", "dIa"= "red","dRa"="green" )) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+ggplot(outdf_leaky, aes(x = time)) +
+  geom_point(size = 0.6, aes(y = Va, color = "dVa")) +
+  geom_point(size = 0.6, aes(y = Eav, color = "dEav")) +
+  geom_point(size = 0.6, aes(y = Iav, color = "dIav")) +
+  geom_point(size = 0.6, aes(y = Rav, color = "dRav")) +
+  labs(x = "Time(days)", y = "Proportion of population", title = "SEIR Dynamics for the population A vaccinated") +
+  scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+#---plot B---
+outdf_leaky <- as.data.frame(output_leaky)
+ggplot(outdf_leaky, aes(x = time)) +
+  geom_line(size = 0.7, aes(y = Sb, color = "dSb")) +
+  geom_line(size = 0.7, aes(y = Eb, color = "dEb")) +
+  geom_line(size = 0.7, aes(y = Ib, color = "dIb")) +
+  geom_line(size = 0.7, aes(y = Rb, color = "dRb")) +
+  geom_point(size = 0.6, aes(y = Vb, color = "dVb")) +
+  geom_point(size = 0.6, aes(y = Ebv, color = "dEbv")) +
+  geom_point(size = 0.6, aes(y = Ibv, color = "dIbv")) +
+  geom_point(size = 0.6, aes(y = Rbv, color = "dRbv")) +
+  labs(x = "Time(days)", y = "Proportion of population", title = "SEIR Dynamics for the population B") +
+  scale_color_manual(values = c("dSb"="blue", "dEb"="orange", "dIb"= "red","dRb"="green", "dVb"="blue","dEbv"="orange", "dIbv"="red", "dRbv"="green" )) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
 
 # 1 - comecar com os valores de beta iguais aos valores utilizados anteriormente
 # 1 - betta = betta_v = betta_vi = betta_vn
@@ -162,7 +249,7 @@ metap_leaky <- function(time, state, parameters) {
 # alpha_a = alpha_b
 
 # 2 - betta_vi e betta_vn menores que betta_v
-# Fazer grávicos. O que acontece, o que vc observa?
+# Fazer gráficos. O que acontece, o que vc observa?
 
 # 3 - A partir do 1, alterar o valor de gamma_v para gamma_v > gamma
 # Fazer graficos. O que vc observa?
