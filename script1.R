@@ -22,20 +22,20 @@ install.packages("patchwork")
 
 metap <- function(time, state, parameters) {
   with(as.list(c(state, parameters)), {
-  
-  dSa = -betta*Sa*Ia + un*(Sa+Ea+Ia+Ra) - Sa*um + M*(Sb - Sa)
-  dEa = betta*Sa*Ia - Ea*(um + sigma) + M*(Eb - Ea)
-  dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
-  dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
-     
-  dSb = -betta*Sb*Ib + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
-  dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
-  dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
-  dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
-  
-   return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb)))
-
-
+    
+    dSa = -betta*Sa*Ia + un*(Sa+Ea+Ia+Ra) - Sa*um + M*(Sb - Sa)
+    dEa = betta*Sa*Ia - Ea*(um + sigma) + M*(Eb - Ea)
+    dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
+    dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
+    
+    dSb = -betta*Sb*Ib + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
+    dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
+    dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
+    dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
+    
+    return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb)))
+    
+    
   })
 }
 #---parameter values---
@@ -96,7 +96,7 @@ out_df$sum_b = out_df$Sb + out_df$Eb + out_df$Ib + out_df$Rb
 ggplot(out_df, aes(x=time)) +
   geom_line(size = 0.7, aes(y = sum_a, color = "Sum A")) +
   geom_line(size = 0.7, aes(y = sum_b, color = "Sum B")) 
-  
+
 
 ggplot(out_df, aes(x = time)) +
   geom_line(size = 0.7, aes(y = Sa, color = "Susceptible A")) +
@@ -135,7 +135,7 @@ metap_leaky <- function(time_leaky, state_leaky, parameters_leaky) {
     dEav =  betta_v * Va*Ia + betta_vi * Va* Iav - Eav *(um+sigma_v) + M*(Ebv - Eav) 
     dIav =  sigma_v * Eav - Iav *(um+ gamma_v) + M*(Ibv - Iav)
     dRav =  gamma_v * Iav - Rav*um + M*(Rbv - Rav)
-
+    
     dSb = - betta*Sb*Ib - betta_vn * Sb*Ibv + un*(Nb) - Sb*um + M*(Sa - Sb) - Sb*alpha_b
     dEb = betta*Sb*Ib + betta_vn * Sb*Ibv - Eb*(um + sigma) + M*(Ea - Eb)
     dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
@@ -146,10 +146,10 @@ metap_leaky <- function(time_leaky, state_leaky, parameters_leaky) {
     dIbv =  sigma_v * Ebv - Ibv *(um+ gamma_v) + M*(Iav - Ibv)
     dRbv =  gamma_v * Ibv - Rbv*um + M*(Rav - Rbv)
     
-#    dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
-#    dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
-#    dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
-#    dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
+    #    dSb = -betta*Sb*Ib + + un*(Sb+Eb+Ib+Rb) - Sb*um + M*(Sa - Sb)
+    #    dEb = betta*Sb*Ib - Eb*(um + sigma) + M*(Ea - Eb)
+    #    dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
+    #    dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
     
     return(list(c(dSa, dEa, dIa, dRa, dSb, dEb, dIb, dRb, dVa, dEav, dIav, dRav, dVb, dEbv, dIbv, dRbv)))
     
@@ -161,21 +161,21 @@ parameters_leaky <- c(
   Na=100000,
   Nb=100000,
   #---vaccinated---
- alpha_a=0.2,
- alpha_b=0.9,
- betta_v=0.2,
- betta_vi=0.2,
- sigma_v=0.3,
- gamma_v=0.6,
- 
- #---unvaccinated---
- betta=0.65,
- betta_vn=0.65,
- sigma=0.3,
- gamma=0.2,
- M=0.01,
- un=0.02,
- um=0.02
+  alpha_a=0.2,
+  alpha_b=0.9,
+  betta_v=0.2,
+  betta_vi=0.2,
+  sigma_v=0.3,
+  gamma_v=0.6,
+  
+  #---unvaccinated---
+  betta=0.65,
+  betta_vn=0.65,
+  sigma=0.3,
+  gamma=0.2,
+  M=0.01,
+  un=0.02,
+  um=0.02
   
 )
 
@@ -229,11 +229,11 @@ a2 <- ggplot(outdf_leaky, aes(x = time)) +
   theme_minimal() +
   theme(legend.title = element_blank())
 a1 / a2
- library(tidyverse)
+library(tidyverse)
 outdf_leaky %>%
   mutate(Na = Sa+Ea+Ia+Ra+Va+Eav+Iav+Rav) %>%
   mutate(Nb = Sb+Eb+Ib+Rb+Vb+Ebv+Ibv+Rbv) -> df2
-  
+
 
 #---plot B---
 outdf_leaky <- as.data.frame(output_leaky)
@@ -309,3 +309,4 @@ N
 
 #POP A: alpha=0.2
 #razão entre infectados vacinados e não vacinados 
+

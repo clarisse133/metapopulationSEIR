@@ -1,24 +1,15 @@
-#packages
-library(ggplot2)
+I <- 1000
+P <- seq(0, 1, 0.00001)
 
-#N = numero de individuos infectados pela cepa
-#P = probablidade de mutacao
-#I = total de infectados(fixo)
+prob_1mut <- 1 - (1 - P)^I
 
-I <- 10000
+data <- data.frame(P, prob_mut)
 
-P <- seq(0, 1, by=0.001)
+ggplot(data, aes(P, prob_mut)) +
+  geom_line() +
+  labs(x = "Prob. mutação",
+       y = "Probabilidade de ocorrer pelo menos 1 mutação",
+       title = "Probabilidade de haver pelo menos uma mutação") +
+  theme_minimal()
 
-N <- P*I
-
-dados <- data.frame(P,N)
-
-#plot
-
-ggplot(dados, aes(x=P, y=N)) +
-  geom_line(color="red", linewidth = 0.6) +
-  labs(title="Numero de infectados em funcao da prob. de mutacao",
-  x="probabilidade de mutacao", 
-  y="infectados com mutacao") +
-  theme_minimal(base_size = 14)
-
+#quanto maior for o n de eventos I, mais rapido o y se aproxima de 1
