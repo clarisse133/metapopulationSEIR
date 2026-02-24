@@ -218,6 +218,7 @@ a1 <- ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dSa"="blue", "dEa"="orange", "dIa"= "red","dRa"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+a1
 
 a2 <- ggplot(outdf_leaky, aes(x = time)) +
   geom_point(size = 0.75, aes(y = Va, color = "dVa")) +
@@ -228,6 +229,7 @@ a2 <- ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+a2
 a1 / a2
 library(tidyverse)
 outdf_leaky %>%
@@ -387,7 +389,6 @@ a2 <- ggplot(outdf_leaky, aes(x = time)) +
   theme(legend.title = element_blank())
 a1 / a2
 
-
 outdf_leaky$Ra
 
 Ninfec_periodo = outdf_leaky$Ra[180]
@@ -416,9 +417,9 @@ if (resultado==0) {
     Ia=2.0,
     Ra=0,
     
-    Sb=99998.0,
+    Sb=10000.0,
     Eb=0,
-    Ib=2.0,
+    Ib=0.0,
     Rb=0,
     
     Va=0,
@@ -441,8 +442,76 @@ if (resultado==0) {
 output_leaky <- ode(y = unlist(state_novo), times = time_leaky, func = metap_leaky, parms = parameters_leaky)
 head(output_leaky)
 
+## Nova iteracao 
+
+vetorA <- c()
+vetorB <- c()
+
+for (num in 1:10) {
+
+outdf_leaky$Ra
+
+Ninfec_periodo = outdf_leaky$Ra[180]
+
+pmut = 0.000001
+
+pnovamut = 1 - (1-pmut)^Ninfec_periodo
+pnovamut
+
+# sorteio
+
+resultado = rbinom(n=1, size = 1, prob = pnovamut)
+
+Nd = dim(outdf_leaky)[1]
+Nc = dim(outdf_leaky)[2]
+
+if (resultado==0) {
+  
+  state_novo = outdf_leaky[Nd, 2:Nc ]
+  
+} else if (resultado==1) {
+  
+  state_novo <- c(
+    Sa=99998.0,
+    Ea=0,
+    Ia=2.0,
+    Ra=0,
+    
+    Sb=10000.0,
+    Eb=0,
+    Ib=0.0,
+    Rb=0,
+    
+    Va=0,
+    Eav=0,
+    Iav=0,
+    Rav=0,
+    
+    Vb=0,
+    Ebv=0,
+    Ibv=0,
+    Rbv=0
+  )
+  
+  # novos parametros
+  
+}
+
+
+#---solve the edo---
+output_leaky <- ode(y = unlist(state_novo), times = time_leaky, func = metap_leaky, parms = parameters_leaky)
+head(output_leaky)
+
+
 #---plot A---
 outdf_leaky <- as.data.frame(output_leaky)
+
+vetorA <- c(vetorA, outdf_leaky$Ia)
+vetorB <- c(vetorB, outdf_leaky$Ib)
+
+
+}
+
 a1 <- ggplot(outdf_leaky, aes(x = time)) +
   geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
   geom_line(size = 0.7, aes(y = Ea, color = "dEa")) +
@@ -453,6 +522,7 @@ a1 <- ggplot(outdf_leaky, aes(x = time)) +
   theme_minimal() +
   theme(legend.title = element_blank())
 
+
 a2 <- ggplot(outdf_leaky, aes(x = time)) +
   geom_point(size = 0.75, aes(y = Va, color = "dVa")) +
   geom_point(size = 0.75, aes(y = Eav, color = "dEav")) +
@@ -462,6 +532,10 @@ a2 <- ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+
+a1
+a2
+
 a1 / a2
 
 
@@ -486,5 +560,10 @@ b2 <- ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dVb"="blue","dEbv"="orange", "dIbv"="red", "dRbv"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+
+b1
+
+b2
+
 b1 / b2
 
