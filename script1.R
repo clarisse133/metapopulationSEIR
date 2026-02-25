@@ -14,11 +14,11 @@ library(patchwork)
 #' @param alpha vaccination rate
 #' 
 #' @export
-install.packages("patchwork")
+
 #--- Ma = Mb = M ---
 #--- un = um ---
 
-#---function---
+#---initial function---
 
 metap <- function(time, state, parameters) {
   with(as.list(c(state, parameters)), {
@@ -161,21 +161,21 @@ parameters_leaky <- c(
   Na=100000,
   Nb=100000,
   #---vaccinated---
-  alpha_a=0.2,
-  alpha_b=0.9,
-  betta_v=0.2,
-  betta_vi=0.2,
-  sigma_v=0.3,
-  gamma_v=0.6,
+  alpha_a=0.02,
+  alpha_b=0.04,
+  betta_v=0.003,
+  betta_vi=0.0035,
+  sigma_v=0.10,
+  gamma_v=0.060,
   
   #---unvaccinated---
-  betta=0.65,
-  betta_vn=0.65,
+  betta=0.09,
+  betta_vn=0.02,
   sigma=0.3,
-  gamma=0.2,
-  M=0.01,
-  un=0.02,
-  um=0.02
+  gamma=0.015,
+  M=0.001,
+  un=0.0002,
+  um=0.0002
   
 )
 
@@ -201,7 +201,7 @@ state_leaky <- c(
   Rbv=0
 )
 
-time_leaky <- seq(0, 180, by=1)
+time_leaky <- seq(0, 80, by=1)
 
 #---solve the edo---
 output_leaky <- ode(y = state_leaky, times = time_leaky, func = metap_leaky, parms = parameters_leaky)
@@ -210,12 +210,12 @@ head(output_leaky)
 #---plot A---
 outdf_leaky <- as.data.frame(output_leaky)
 a1 <- ggplot(outdf_leaky, aes(x = time)) +
-  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
-  geom_line(size = 0.7, aes(y = Ea, color = "dEa")) +
-  geom_line(size = 0.7, aes(y = Ia, color = "dIa")) +
-  geom_line(size = 0.7, aes(y = Ra, color = "dRa")) +
+  geom_line(size = 0.7, aes(y = Sa, color = "Susceptible")) +
+  geom_line(size = 0.7, aes(y = Ea, color = "Exposed")) +
+  geom_line(size = 0.7, aes(y = Ia, color = "Infected")) +
+  geom_line(size = 0.7, aes(y = Ra, color = "Recovered")) +
   labs(x = "Time(days)", y = "Number of individuals", title = "SEIR Dynamics for the population A unvaccinated") +
-  scale_color_manual(values = c("dSa"="blue", "dEa"="orange", "dIa"= "red","dRa"="green" )) +
+  scale_color_manual(values = c("Susceptible"="blue", "Exposed"="orange", "Infected"= "red","Recovered"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
 
@@ -238,22 +238,22 @@ outdf_leaky %>%
 #---plot B---
 outdf_leaky <- as.data.frame(output_leaky)
 b1 <- ggplot(outdf_leaky, aes(x = time)) +
-  geom_line(size = 0.7, aes(y = Sb, color = "dSb")) +
-  geom_line(size = 0.7, aes(y = Eb, color = "dEb")) +
-  geom_line(size = 0.7, aes(y = Ib, color = "dIb")) +
-  geom_line(size = 0.7, aes(y = Rb, color = "dRb")) +
+  geom_line(size = 0.7, aes(y = Sb, color = "Susceptible")) +
+  geom_line(size = 0.7, aes(y = Eb, color = "Exposed")) +
+  geom_line(size = 0.7, aes(y = Ib, color = "Infected")) +
+  geom_line(size = 0.7, aes(y = Rb, color = "Recovered")) +
   labs(x = "Time(days)", y = "Number of individuals", title = "SEIR Dynamics for the population B unvaccinated") +
-  scale_color_manual(values = c("dSb"="blue", "dEb"="orange", "dIb"= "red","dRb"="green")) +
+  scale_color_manual(values = c("Susceptible"="blue", "Exposed"="orange", "Infected"= "red","Recovered"="green")) +
   theme_minimal() +
   theme(legend.title = element_blank())
 
 b2 <- ggplot(outdf_leaky, aes(x = time)) +
-  geom_point(size = 0.6, aes(y = Vb, color = "dVb")) +
-  geom_point(size = 0.6, aes(y = Ebv, color = "dEbv")) +
-  geom_point(size = 0.6, aes(y = Ibv, color = "dIbv")) +
-  geom_point(size = 0.6, aes(y = Rbv, color = "dRbv")) +
+  geom_point(size = 0.6, aes(y = Vb, color = "Vaccinated")) +
+  geom_point(size = 0.6, aes(y = Ebv, color = "Exposed V.")) +
+  geom_point(size = 0.6, aes(y = Ibv, color = "Infected V.")) +
+  geom_point(size = 0.6, aes(y = Rbv, color = "Recovered V.")) +
   labs(x = "Time(days)", y = "Number of individuals", title = "SEIR Dynamics for the population B vaccinated") +
-  scale_color_manual(values = c("dSb"="blue", "dEb"="orange", "dIb"= "red","dRb"="green", "dVb"="blue","dEbv"="orange", "dIbv"="red", "dRbv"="green" )) +
+  scale_color_manual(values = c("Vaccinated"="blue", "Exposed V."="orange", "Infected V."= "red","Recovered V."="green")) +
   theme_minimal() +
   theme(legend.title = element_blank())
 b1 / b2
@@ -279,38 +279,6 @@ b1 / b2
 # Paa introduzir desigualdade, pode ser com alphas distintos ou condicoes iniciais distintas
 
 # alphas distintos
-
-
-# probabilidade de mutacao
-
-prob_mut = .0001
-
-# I = 1000
-
-# Numero esperado de infectados com nova mutacao: I*prob_mut
-
-I = 1000
-
-N=I*prob_mut
-N
-
-I = 1000000
-
-N=I*prob_mut
-N
-
-
-# 1
-# considerar tamanhos de populcao distintos: N=10000, N=1 000 000, N=1 000 000 (ou outros valores)
-# encontrar o que se espera em termos de individuos com as novas mutacoes
-
-# 2
-# variar a prob_mut e construir grafico do numero esperado em funcao da prob de mutacao
-
-#POP A: alpha=0.2
-#razão entre infectados vacinados e não vacinados 
-
-#
 
 parameters_leaky <- c(
   Na=100000,
@@ -488,3 +456,4 @@ b2 <- ggplot(outdf_leaky, aes(x = time)) +
   theme(legend.title = element_blank())
 b1 / b2
 
+  
