@@ -126,23 +126,23 @@ ggplot(out_df, aes(x = time)) +
 metap_leaky <- function(time_leaky, state_leaky, parameters_leaky) {
   with(as.list(c(state_leaky, parameters_leaky)), {
     
-    dSa = - betta*Sa*Ia - betta_vn * Sa*Iav + un*Na - Sa*um + M*(Sb - Sa) - Sa*alpha_a
-    dEa = betta*Sa*Ia + betta_vn * Sa*Iav - Ea*(um + sigma) + M*(Eb - Ea)
+    dSa = - betta*Sa*Ia/Na - betta_vn * Sa*Iav/Na + un*Na - Sa*um + M*(Sb - Sa) - Sa*alpha_a
+    dEa = betta*Sa*Ia/Na + betta_vn * Sa*Iav/Na - Ea*(um + sigma) + M*(Eb - Ea)
     dIa = sigma*Ea - Ia*(um + gamma) + M*(Ib - Ia)
     dRa = gamma*Ia - Ra*um + M*(Rb- Ra)
     
-    dVa = Sa*alpha_a - betta_v * Va*Ia - betta_vi * Va* Iav - um*Va + M*(Vb - Va)
-    dEav =  betta_v * Va*Ia + betta_vi * Va* Iav - Eav *(um+sigma_v) + M*(Ebv - Eav) 
+    dVa = Sa*alpha_a - betta_v * Va*Ia/Na - betta_vi * Va* Iav/Na - um*Va + M*(Vb - Va)
+    dEav =  betta_v * Va*Ia/Na + betta_vi * Va* Iav/Na - Eav *(um+sigma_v) + M*(Ebv - Eav) 
     dIav =  sigma_v * Eav - Iav *(um+ gamma_v) + M*(Ibv - Iav)
     dRav =  gamma_v * Iav - Rav*um + M*(Rbv - Rav)
     
-    dSb = - betta*Sb*Ib - betta_vn * Sb*Ibv + un*(Nb) - Sb*um + M*(Sa - Sb) - Sb*alpha_b
-    dEb = betta*Sb*Ib + betta_vn * Sb*Ibv - Eb*(um + sigma) + M*(Ea - Eb)
+    dSb = - betta*Sb*Ib/Nb - betta_vn * Sb*Ibv/Nb + un*(Nb) - Sb*um + M*(Sa - Sb) - Sb*alpha_b
+    dEb = betta*Sb*Ib/Nb + betta_vn * Sb*Ibv/Nb - Eb*(um + sigma) + M*(Ea - Eb)
     dIb = sigma*Eb - Ib*(um + gamma) + M*(Ia - Ib)
     dRb = gamma*Ib - Rb*um + M*(Ra- Rb)
     
-    dVb = Sb*alpha_b - betta_v * Vb*Ib - betta_vi * Vb* Ibv - um*Vb + M*(Va - Vb)
-    dEbv =  betta_v * Vb*Ib + betta_vi * Vb* Ibv - Ebv *(um+sigma_v) + M*(Eav - Ebv) 
+    dVb = Sb*alpha_b - betta_v * Vb*Ib/Nb - betta_vi * Vb* Ibv/Nb - um*Vb + M*(Va - Vb)
+    dEbv =  betta_v * Vb*Ib/Nb + betta_vi * Vb* Ibv/Nb - Ebv *(um+sigma_v) + M*(Eav - Ebv) 
     dIbv =  sigma_v * Ebv - Ibv *(um+ gamma_v) + M*(Iav - Ibv)
     dRbv =  gamma_v * Ibv - Rbv*um + M*(Rav - Rbv)
     
@@ -161,21 +161,21 @@ parameters_leaky <- c(
   Na=100000,
   Nb=100000,
   #---vaccinated---
-  alpha_a=0.2,
-  alpha_b=0.9,
-  betta_v=0.2,
-  betta_vi=0.2,
+  alpha_a=0.02,
+  alpha_b=0.09,
+  betta_v=0.4,
+  betta_vi=0.4,
   sigma_v=0.3,
-  gamma_v=0.6,
+  gamma_v=0.4/3,
   
   #---unvaccinated---
-  betta=0.65,
-  betta_vn=0.65,
+  betta=0.45,
+  betta_vn=0.45,
   sigma=0.3,
-  gamma=0.2,
+  gamma=0.45/3,
   M=0.01,
-  un=0.02,
-  um=0.02
+  un=0.0,
+  um=0.0
   
 )
 
@@ -210,7 +210,7 @@ head(output_leaky)
 #---plot A---
 outdf_leaky <- as.data.frame(output_leaky)
 a1 <- ggplot(outdf_leaky, aes(x = time)) +
-  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
+#  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
   geom_line(size = 0.7, aes(y = Ea, color = "dEa")) +
   geom_line(size = 0.7, aes(y = Ia, color = "dIa")) +
   geom_line(size = 0.7, aes(y = Ra, color = "dRa")) +
@@ -221,10 +221,10 @@ a1 <- ggplot(outdf_leaky, aes(x = time)) +
 a1
 
 a2 <- ggplot(outdf_leaky, aes(x = time)) +
-  geom_point(size = 0.75, aes(y = Va, color = "dVa")) +
-  geom_point(size = 0.75, aes(y = Eav, color = "dEav")) +
-  geom_point(size = 0.75, aes(y = Iav, color = "dIav")) +
-  geom_point(size = 0.75, aes(y = Rav, color = "dRav")) +
+  geom_line(size = 0.75, aes(y = Va, color = "dVa")) +
+  geom_line(size = 0.75, aes(y = Eav, color = "dEav")) +
+  geom_line(size = 0.75, aes(y = Iav, color = "dIav")) +
+  geom_line(size = 0.75, aes(y = Rav, color = "dRav")) +
   labs(x = "Time(days)", y = "Number of individuals", title = "SEIR Dynamics for the population A vaccinated") +
   scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
   theme_minimal() +
@@ -314,6 +314,9 @@ N
 
 #
 
+# Nao vou redefinir por agora
+if (FALSE) {
+
 parameters_leaky <- c(
   Na=100000,
   Nb=100000,
@@ -357,6 +360,7 @@ state_leaky <- c(
   Ibv=0,
   Rbv=0
 )
+}
 
 Ndias = 180
 
@@ -369,7 +373,7 @@ head(output_leaky)
 #---plot A---
 outdf_leaky <- as.data.frame(output_leaky)
 a1 <- ggplot(outdf_leaky, aes(x = time)) +
-  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
+#  geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
   geom_line(size = 0.7, aes(y = Ea, color = "dEa")) +
   geom_line(size = 0.7, aes(y = Ia, color = "dIa")) +
   geom_line(size = 0.7, aes(y = Ra, color = "dRa")) +
@@ -377,6 +381,7 @@ a1 <- ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dSa"="blue", "dEa"="orange", "dIa"= "red","dRa"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+a1
 
 a2 <- ggplot(outdf_leaky, aes(x = time)) +
   geom_point(size = 0.75, aes(y = Va, color = "dVa")) +
@@ -387,6 +392,8 @@ a2 <- ggplot(outdf_leaky, aes(x = time)) +
   scale_color_manual(values = c("dVa"="blue","dEav"="orange", "dIav"="red", "dRav"="green" )) +
   theme_minimal() +
   theme(legend.title = element_blank())
+a2
+
 a1 / a2
 
 outdf_leaky$Ra
@@ -410,7 +417,7 @@ if (resultado==0) {
 
   state_novo = outdf_leaky[Nd, 2:Nc ]
   
-} else (resultado==1) {
+} else if (resultado==1) {
 
   state_novo <- c(
     Sa=99998.0,
@@ -522,6 +529,21 @@ vetorB <- c(vetorB, outdf_leaky$Ib)
 plot(vetorA)
 plot(vetorB)
 plot(vetorVariantes)
+
+
+
+novodf <- data.frame(vetorA = vetorA,
+                     vetorB = vetorB)  %>%
+  mutate(t = row_number())
+
+novodf %>%
+  ggplot(aes(x=t, y=vetorA)) + geom_line(color = "red") +
+  labs(x= "Número de Dias", y= "Núm. Infectados") +
+  xlim(c(0,1000)) +
+  theme_bw()
+
+
+
 
 a1 <- ggplot(outdf_leaky, aes(x = time)) +
   geom_line(size = 0.7, aes(y = Sa, color = "dSa")) +
